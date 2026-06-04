@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gaming & Academic Performance Predictor</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --primary:   #6c63ff;
+      --secondary: #f8a100;
+      --dark:      #1a1a2e;
+      --card-bg:   #16213e;
+      --input-bg:  #0f3460;
+      --text-muted:#a0aec0;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      color: #e2e8f0;
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      background: rgba(26,26,46,0.95) !important;
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(108,99,255,0.3);
+      padding: 14px 0;
+    }
+    .navbar-brand {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary) !important;
+      letter-spacing: 0.5px;
+    }
+    .navbar-brand i { margin-right: 8px; }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 50px 20px 30px;
+    }
+    .hero h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #6c63ff, #f8a100);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+    }
+    .hero p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    /* ── Cards ── */
+    .card-custom {
+      background: rgba(22,33,62,0.85);
+      border: 1px solid rgba(108,99,255,0.2);
+      border-radius: 18px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .card-header-custom {
+      background: linear-gradient(135deg, rgba(108,99,255,0.2), rgba(248,161,0,0.1));
+      border-bottom: 1px solid rgba(108,99,255,0.2);
+      border-radius: 18px 18px 0 0 !important;
+      padding: 18px 24px;
+    }
+    .card-header-custom h5 {
+      font-weight: 600;
+      margin: 0;
+      font-size: 1rem;
+    }
+    .card-header-custom i { color: var(--primary); margin-right: 8px; }
+
+    /* ── Form Inputs ── */
+    .form-label {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 6px;
+    }
+    .form-control, .form-select {
+      background: rgba(15,52,96,0.7) !important;
+      border: 1px solid rgba(108,99,255,0.25) !important;
+      color: #e2e8f0 !important;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.93rem;
+      transition: all 0.25s;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 0 3px rgba(108,99,255,0.18) !important;
+      background: rgba(15,52,96,0.95) !important;
+    }
+    .form-control::placeholder { color: #5a6a80; }
+    .form-select option { background: #1a1a2e; color: #e2e8f0; }
+
+    /* ── Range slider ── */
+    .range-val {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--primary);
+      min-width: 42px;
+      text-align: right;
+    }
+    .form-range { accent-color: var(--primary); }
+
+    /* ── Submit button ── */
+    .btn-predict {
+      background: linear-gradient(135deg, var(--primary), #8b83ff);
+      border: none;
+      border-radius: 12px;
+      padding: 14px 36px;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: #fff;
+      width: 100%;
+      transition: all 0.3s;
+      box-shadow: 0 4px 20px rgba(108,99,255,0.4);
+    }
+    .btn-predict:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(108,99,255,0.55);
+      color: #fff;
+    }
+    .btn-predict:active { transform: translateY(0); }
+    .btn-predict i { margin-right: 8px; }
+
+    /* ── Result panel ── */
+    #resultPanel { display: none; }
+
+    .result-card {
+      border-radius: 18px;
+      padding: 30px 24px;
+      text-align: center;
+      border: 2px solid transparent;
+      transition: all 0.4s;
+    }
+    .result-card.show { animation: fadeInUp 0.5s ease; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .grade-badge {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin: 0 auto 16px;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.35);
+    }
+    .grade-A { background: linear-gradient(135deg,#28a745,#20c997); }
+    .grade-B { background: linear-gradient(135deg,#007bff,#17a2b8); }
+    .grade-C { background: linear-gradient(135deg,#fd7e14,#ffc107); }
+    .grade-D { background: linear-gradient(135deg,#e83e8c,#fd7e14); }
+    .grade-F { background: linear-gradient(135deg,#dc3545,#c82333); }
+
+    .score-value {
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    /* progress bar */
+    .progress {
+      height: 12px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.08);
+    }
+    .progress-bar { border-radius: 8px; transition: width 1s ease; }
+
+    /* ── Section labels ── */
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--primary);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(108,99,255,0.25);
+    }
+
+    /* ── Loading spinner ── */
+    #loadingSpinner { display: none; }
+    .spinner-border { color: var(--primary) !important; }
+
+    /* ── Error alert ── */
+    .alert-danger-custom {
+      background: rgba(220,53,69,0.15);
+      border: 1px solid rgba(220,53,69,0.4);
+      color: #f8a9b0;
+      border-radius: 12px;
+    }
+
+    /* ── Stats strip ── */
+    .stat-strip {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+    .stat-pill {
+      flex: 1;
+      min-width: 100px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 12px 10px;
+      text-align: center;
+    }
+    .stat-pill .sp-val {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .stat-pill .sp-lbl {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 28px;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      margin-top: 50px;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 1.7rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+  <div class="container">
+    <a class="navbar-brand" href="#">
+      <i class="bi bi-controller"></i>Gaming Academic Predictor
+    </a>
+    <span class="badge rounded-pill" style="background:rgba(108,99,255,0.3);color:#a89dff;font-size:0.75rem;padding:6px 12px;">
+      ML Powered
+    </span>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <h1><i class="bi bi-graph-up-arrow" style="font-size:2rem;"></i> Academic Performance Predictor</h1>
+  <p>Enter your gaming and study habits to predict your academic grade using Machine Learning models.</p>
+</div>
+
+<div class="container pb-5">
+  <div class="row g-4">
+
+    <!-- ── Left: Input Form ── -->
+    <div class="col-lg-7">
+      <div class="card-custom">
+        <div class="card-header-custom">
+          <h5><i class="bi bi-input-cursor-text"></i> Student Information</h5>
+        </div>
+        <div class="p-4">
+          <form id="predictForm">
+
+            <!-- Personal Info -->
+            <div class="section-title"><i class="bi bi-person"></i>Personal Info</div>
+            <div class="row g-3 mb-3">
+              <div class="col-sm-6">
+                <label class="form-label">Age</label>
+                <input type="number" class="form-control" id="age" name="age"
+                       min="15" max="30" value="20" required/>
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label">Gender</label>
+                <select class="form-select" id="gender" name="gender">
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Gaming Habits -->
+            <div class="section-title"><i class="bi bi-controller"></i>Gaming Habits</div>
+            <div class="row g-3 mb-3">
+              <div class="col-sm-6">
+                <label class="form-label">Gaming Genre</label>
+                <select class="form-select" id="gaming_genre" name="gaming_genre">
+                  <option value="Casual">Casual</option>
+                  <option value="FPS">FPS (First Person Shooter)</option>
+                  <option value="RPG">RPG (Role Playing Game)</option>
+                </select>
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label">Stress Level</label>
+                <select class="form-select" id="stress_level" name="stress_level">
+                  <option value="Low">Low</option>
+                  <option value="Medium" selected>Medium</option>
+                  <option value="High">High</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Sliders -->
+            <div class="section-title"><i class="bi bi-sliders"></i>Daily Hours & Stats</div>
+            <div class="row g-3 mb-3">
+
+              <div class="col-sm-6">
+                <label class="form-label">Gaming Hours / Day</label>
+                <div class="d-flex align-items-center gap-2">
+                  <input type="range" class="form-range flex-grow-1" id="gaming_hours"
+                         name="gaming_hours" min="0" max="16" step="0.5" value="4"
+                         oninput="document.getElementById('gv').textContent=this.value"/>
+                  <span class="range-val" id="gv">4</span>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <label class="form-label">Study Hours / Day</label>
+                <div class="d-flex align-items-center gap-2">
+                  <input type="range" class="form-range flex-grow-1" id="study_hours"
+                         name="study_hours" min="0" max="16" step="0.5" value="5"
+                         oninput="document.getElementById('sv').textContent=this.value"/>
+                  <span class="range-val" id="sv">5</span>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <label class="form-label">Sleep Hours / Day</label>
+                <div class="d-flex align-items-center gap-2">
+                  <input type="range" class="form-range flex-grow-1" id="sleep_hours"
+                         name="sleep_hours" min="3" max="12" step="0.5" value="7"
+                         oninput="document.getElementById('slv').textContent=this.value"/>
+                  <span class="range-val" id="slv">7</span>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <label class="form-label">Device Usage Hours / Day</label>
+                <div class="d-flex align-items-center gap-2">
+                  <input type="range" class="form-range flex-grow-1" id="device_usage"
+                         name="device_usage" min="0" max="20" step="0.5" value="8"
+                         oninput="document.getElementById('dv').textContent=this.value"/>
+                  <span class="range-val" id="dv">8</span>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <label class="form-label">Social Activity (hrs/day)</label>
+                <div class="d-flex align-items-center gap-2">
+                  <input type="range" class="form-range flex-grow-1" id="social_activity"
+                         name="social_activity" min="0" max="10" step="0.25" value="2"
+                         oninput="document.getElementById('sav').textContent=this.value"/>
+                  <span class="range-val" id="sav">2</span>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <label class="form-label">Attendance (%)</label>
+                <div class="d-flex align-items-center gap-2">
+                  <input type="range" class="form-range flex-grow-1" id="attendance"
+                         name="attendance" min="0" max="100" step="1" value="80"
+                         oninput="document.getElementById('av').textContent=this.value+'%'"/>
+                  <span class="range-val" id="av">80%</span>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <label class="form-label">Addiction Score (0–20)</label>
+                <div class="d-flex align-items-center gap-2">
+                  <input type="range" class="form-range flex-grow-1" id="addiction_score"
+                         name="addiction_score" min="0" max="20" step="0.5" value="8"
+                         oninput="document.getElementById('adv').textContent=this.value"/>
+                  <span class="range-val" id="adv">8</span>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <label class="form-label">Reaction Time (ms)</label>
+                <div class="d-flex align-items-center gap-2">
+                  <input type="range" class="form-range flex-grow-1" id="reaction_time_ms"
+                         name="reaction_time_ms" min="100" max="600" step="5" value="280"
+                         oninput="document.getElementById('rv').textContent=this.value"/>
+                  <span class="range-val" id="rv">280</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Submit -->
+            <div class="mt-4">
+              <button type="submit" class="btn btn-predict">
+                <i class="bi bi-lightning-charge-fill"></i>Predict My Grade
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Right: Result Panel ── -->
+    <div class="col-lg-5">
+
+      <!-- Loading -->
+      <div id="loadingSpinner" class="text-center py-5">
+        <div class="spinner-border" style="width:3rem;height:3rem;" role="status"></div>
+        <p class="mt-3" style="color:var(--text-muted);">Analyzing with ML Model...</p>
+      </div>
+
+      <!-- Error -->
+      <div id="errorMsg" class="alert alert-danger-custom" style="display:none;"></div>
+
+      <!-- Result -->
+      <div id="resultPanel">
+
+        <!-- Grade Category Card -->
+        <div class="card-custom mb-4">
+          <div class="card-header-custom">
+            <h5><i class="bi bi-trophy"></i>Prediction Result</h5>
+          </div>
+          <div class="p-4 text-center">
+            <div id="gradeBadge" class="grade-badge mb-3"></div>
+            <h2 id="gradeLabel" style="font-weight:800;font-size:1.6rem;"></h2>
+            <span id="perfBadge" class="badge rounded-pill px-3 py-2 mt-1"
+                  style="font-size:0.9rem;"></span>
+
+            <!-- Confidence bar -->
+            <div class="mt-4" id="confSection" style="display:none;">
+              <div class="d-flex justify-content-between mb-1">
+                <small style="color:var(--text-muted);">Model Confidence</small>
+                <small id="confVal" style="color:var(--primary);font-weight:600;"></small>
+              </div>
+              <div class="progress">
+                <div id="confBar" class="progress-bar" role="progressbar"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Score Card -->
+        <div class="card-custom mb-4">
+          <div class="card-header-custom">
+            <h5><i class="bi bi-bar-chart-line"></i>Predicted Score</h5>
+          </div>
+          <div class="p-4 text-center">
+            <div class="score-value" id="scoreVal" style="color:var(--primary);"></div>
+            <div style="color:var(--text-muted);font-size:0.85rem;margin-top:4px;">out of 100</div>
+            <div class="progress mt-3">
+              <div id="scoreBar" class="progress-bar bg-info" role="progressbar"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Strip -->
+        <div class="card-custom">
+          <div class="card-header-custom">
+            <h5><i class="bi bi-clipboard-data"></i>Input Summary</h5>
+          </div>
+          <div class="p-4">
+            <div class="stat-strip" id="statStrip"></div>
+          </div>
+        </div>
+
+      </div><!-- end resultPanel -->
+
+      <!-- Placeholder when no result yet -->
+      <div id="placeholder" class="card-custom p-5 text-center">
+        <i class="bi bi-arrow-left-circle" style="font-size:3rem;color:rgba(108,99,255,0.4);"></i>
+        <p class="mt-3" style="color:var(--text-muted);">
+          Fill in the form and click <strong>Predict My Grade</strong> to see results.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  <p>🎮 Gaming Academic Performance Predictor &nbsp;|&nbsp;
+     Built with Flask + Bootstrap 5 &nbsp;|&nbsp;
+     ML Models: Classification + Regression</p>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+const perfColors = {
+  'Excellent':     ['#28a745', 'success'],
+  'Good':          ['#007bff', 'primary'],
+  'Average':       ['#fd7e14', 'warning'],
+  'Below Average': ['#ffc107', 'warning'],
+  'Poor':          ['#dc3545', 'danger'],
+};
+
+const gradeColors = { A:'#28a745', B:'#007bff', C:'#fd7e14', D:'#e83e8c', F:'#dc3545' };
+const gradeEmoji  = { A:'🏆', B:'⭐', C:'📘', D:'⚠️', F:'❌' };
+
+document.getElementById('predictForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  // UI state
+  document.getElementById('placeholder').style.display = 'none';
+  document.getElementById('resultPanel').style.display  = 'none';
+  document.getElementById('errorMsg').style.display     = 'none';
+  document.getElementById('loadingSpinner').style.display = 'block';
+
+  // Gather form data
+  const formData = new FormData(this);
+  const payload  = {};
+  formData.forEach((v, k) => payload[k] = v);
+
+  try {
+    const res  = await fetch('/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+
+    document.getElementById('loadingSpinner').style.display = 'none';
+
+    if (!data.success) throw new Error(data.error || 'Prediction failed');
+
+    // ── Grade Badge ──
+    const g = data.grade_category;
+    const badge = document.getElementById('gradeBadge');
+    badge.className = `grade-badge grade-${g}`;
+    badge.textContent = g;
+
+    document.getElementById('gradeLabel').textContent =
+      `Grade ${g} — ${data.grade_category === 'A' ? 'Excellent' :
+                       data.grade_category === 'B' ? 'Good' :
+                       data.grade_category === 'C' ? 'Average' :
+                       data.grade_category === 'D' ? 'Below Average' : 'Fail'}`;
+
+    // ── Performance badge ──
+    const [color] = perfColors[data.performance] || ['#6c757d'];
+    const pb = document.getElementById('perfBadge');
+    pb.textContent = data.performance;
+    pb.style.background = color + '33';
+    pb.style.color = color;
+    pb.style.border = `1px solid ${color}55`;
+
+    // ── Confidence bar ──
+    if (data.confidence !== null) {
+      document.getElementById('confSection').style.display = 'block';
+      document.getElementById('confVal').textContent = data.confidence + '%';
+      const cb = document.getElementById('confBar');
+      cb.style.width = data.confidence + '%';
+      cb.style.background = `linear-gradient(90deg, #6c63ff, #a89dff)`;
+    }
+
+    // ── Score ──
+    document.getElementById('scoreVal').textContent = data.grade_score.toFixed(1);
+    const sb = document.getElementById('scoreBar');
+    sb.style.width = data.grade_score + '%';
+    const scoreColor = data.grade_score >= 80 ? '#28a745' :
+                       data.grade_score >= 60 ? '#fd7e14' : '#dc3545';
+    sb.style.background = `linear-gradient(90deg, ${scoreColor}, ${scoreColor}99)`;
+
+    // ── Stats strip ──
+    const stats = [
+      { val: payload.gaming_hours + 'h', lbl: 'Gaming' },
+      { val: payload.study_hours  + 'h', lbl: 'Study' },
+      { val: payload.sleep_hours  + 'h', lbl: 'Sleep' },
+      { val: payload.attendance   + '%', lbl: 'Attend' },
+      { val: payload.addiction_score,    lbl: 'Addiction' },
+    ];
+    document.getElementById('statStrip').innerHTML = stats.map(s =>
+      `<div class="stat-pill">
+        <div class="sp-val">${s.val}</div>
+        <div class="sp-lbl">${s.lbl}</div>
+      </div>`
+    ).join('');
+
+    // Show result
+    document.getElementById('resultPanel').style.display = 'block';
+    document.getElementById('resultPanel').classList.add('show');
+
+  } catch (err) {
+    document.getElementById('loadingSpinner').style.display = 'none';
+    const em = document.getElementById('errorMsg');
+    em.style.display = 'block';
+    em.innerHTML = `<i class="bi bi-exclamation-triangle me-2"></i>${err.message}`;
+    document.getElementById('placeholder').style.display = 'block';
+  }
+});
+</script>
+
+</body>
+</html>
